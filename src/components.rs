@@ -3,6 +3,9 @@ use specs_derive::*;
 use rltk::{RGB};
 
 #[derive(Component, Debug)]
+pub struct BlocksTile {}
+
+#[derive(Component, Debug)]
 pub struct Name {
     pub name : String
 }
