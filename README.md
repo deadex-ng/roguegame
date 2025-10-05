@@ -1,9 +1,15 @@
 # Rougue Game in Rust
 
+Player can attack and kill monsters.
+
+https://github.com/user-attachments/assets/03a44cb5-08de-457e-8f89-00ef63299e85
 
 
 
-https://github.com/user-attachments/assets/92a724d6-7592-4dcb-b5fa-1cce3ada2caa
+
+
+
+
 
 
 
