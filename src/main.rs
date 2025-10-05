@@ -14,6 +14,10 @@ mod monster_ai_system;
 use monster_ai_system::MonsterAI;
 mod map_indexing_system;
 use map_indexing_system::MapIndexingSystem;
+mod melee_combat_system;
+use melee_combat_system::MeleeCombatSystem;
+mod damage_system;
+use damage_system::DamageSystem;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {Paused, Running}
@@ -31,6 +35,10 @@ impl State {
         mob.run_now(&self.ecs);
         let mut mapindex = MapIndexingSystem{};
         mapindex.run_now(&self.ecs);
+        let mut melee = MeleeCombatSystem{};
+        melee.run_now(&self.ecs);
+        let mut damage = DamageSystem{};
+        damage.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -41,6 +49,7 @@ impl GameState for State {
 
         if self.runstate == RunState::Running{
             self.run_systems();
+            damage_system::delete_the_dead(&mut self.ecs);
             self.runstate = RunState::Paused;
         } else {
             self.runstate = player_input(self, ctx);
@@ -75,7 +84,9 @@ fn main() -> rltk::BError {
     gs.ecs.register::<Monster>();
     gs.ecs.register::<Name>();
     gs.ecs.register::<BlocksTile>();
-
+    gs.ecs.register::<CombatStats>();
+    gs.ecs.register::<WantsToMelee>();
+    gs.ecs.register::<SufferDamage>();
 
     let map : Map = Map::new_map_rooms_and_corridors();
     let (player_x, player_y) = map.rooms[0].center();
@@ -91,6 +102,7 @@ fn main() -> rltk::BError {
         .with(Player{})
         .with(Viewshed{ visible_tiles : Vec::new(), range: 15, dirty: true })
         .with(Name{name: "Player".to_string()})
+        .with(CombatStats{max_hp: 30, hp: 30, defense: 2, power: 5})
         .build();
     
 
@@ -117,6 +129,7 @@ fn main() -> rltk::BError {
             .with(Monster{})
             .with(Name{ name: format!("{} #{}", &name, i) })
             .with(BlocksTile{})
+            .with(CombatStats{max_hp: 16, hp: 16, defense: 1, power: 4})
             .build();
     }
 
